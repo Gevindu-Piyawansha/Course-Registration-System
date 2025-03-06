@@ -14,10 +14,9 @@ import com.ijse.crs.util.DBConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.sql.*;
-import java.util.*;
 
 public class CourseDAO {
+
     // Get all courses from the database
     public List<Course> getAllCourses() {
         List<Course> courses = new ArrayList<>();
@@ -40,7 +39,7 @@ public class CourseDAO {
                 courses.add(new Course(courseId, title, creditHours, department, maxEnrollment, prerequisites));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace();  // Keep original behavior here for error printing
         }
         return courses;
     }
@@ -59,7 +58,7 @@ public class CourseDAO {
                 prerequisites.add(rs.getInt("prerequisite_course_id"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace();  // Keep original behavior here for error printing
         }
         return prerequisites;
     }

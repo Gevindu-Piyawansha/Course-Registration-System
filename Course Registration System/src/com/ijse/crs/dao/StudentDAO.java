@@ -14,10 +14,12 @@ import com.ijse.crs.util.DBConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.*;
 
 public class StudentDAO {
 
-    public Student getStudentById(int studentId) {
+    // Get a Student by ID
+    public Optional<Student> getStudentById(int studentId) {
         String query = "SELECT * FROM students WHERE student_id = ?";
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -26,20 +28,23 @@ public class StudentDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return new Student(
+                Student student = new Student(
                     rs.getInt("student_id"),
                     rs.getString("name"),
                     rs.getString("dob"),
                     rs.getString("program"),
                     rs.getInt("year")
                 );
+                return Optional.of(student);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            // Log the exception here
         }
-        return null;
+        return Optional.empty();
     }
 
+    // Get all students
     public List<Student> getAllStudents() {
         List<Student> students = new ArrayList<>();
         String query = "SELECT * FROM students";
@@ -59,6 +64,7 @@ public class StudentDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            // Log the exception here
         }
         return students;
     }
