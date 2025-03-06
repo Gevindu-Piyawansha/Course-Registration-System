@@ -14,8 +14,11 @@ import com.ijse.crs.util.DBConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.*;
+import java.util.*;
 
 public class CourseDAO {
+    // Get all courses from the database
     public List<Course> getAllCourses() {
         List<Course> courses = new ArrayList<>();
         String query = "SELECT * FROM courses";
@@ -23,20 +26,41 @@ public class CourseDAO {
         try (Connection connection = DBConnection.getConnection();
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
-            
+
             while (rs.next()) {
-                courses.add(new Course(
-                    rs.getInt("course_id"),
-                    rs.getString("title"),
-                    rs.getInt("credit_hours"),
-                    rs.getString("department"),
-                    rs.getInt("max_enrollment")
-                ));
+                int courseId = rs.getInt("course_id");
+                String title = rs.getString("title");
+                int creditHours = rs.getInt("credit_hours");
+                String department = rs.getString("department");
+                int maxEnrollment = rs.getInt("max_enrollment");
+
+                // Fetch prerequisites for the course
+                List<Integer> prerequisites = getPrerequisitesForCourse(courseId);
+
+                courses.add(new Course(courseId, title, creditHours, department, maxEnrollment, prerequisites));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return courses;
     }
-}
 
+    // Fetch prerequisites for a specific course
+    private List<Integer> getPrerequisitesForCourse(int courseId) {
+        List<Integer> prerequisites = new ArrayList<>();
+        String query = "SELECT prerequisite_course_id FROM course_prerequisites WHERE course_id = ?";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, courseId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                prerequisites.add(rs.getInt("prerequisite_course_id"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return prerequisites;
+    }
+}
